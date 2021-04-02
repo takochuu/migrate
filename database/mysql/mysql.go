@@ -13,15 +13,10 @@ import (
 	nurl "net/url"
 	"strconv"
 	"strings"
-)
 
-import (
 	"github.com/go-sql-driver/mysql"
-	"github.com/hashicorp/go-multierror"
-)
-
-import (
 	"github.com/golang-migrate/migrate/v4/database"
+	"github.com/hashicorp/go-multierror"
 )
 
 func init() {
@@ -309,15 +304,21 @@ func (m *Mysql) Unlock() error {
 	return nil
 }
 
-func (m *Mysql) Run(migration io.Reader) error {
+func (m *Mysql) Run(migration io.Reader, version int) error {
 	migr, err := ioutil.ReadAll(migration)
 	if err != nil {
 		return err
 	}
 
+	if err := m.SetVersion(version, true); err != nil {
+		return err
+	}
 	query := string(migr[:])
 	if _, err := m.conn.ExecContext(context.Background(), query); err != nil {
 		return database.Error{OrigErr: err, Err: "migration failed", Query: migr}
+	}
+	if err := m.SetVersion(version, false); err != nil {
+		return err
 	}
 
 	return nil

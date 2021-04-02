@@ -66,3 +66,5 @@ require (
 )
 
 go 1.13
+
+replace github.com/golang-migrate/migrate/v4 => ./

@@ -63,7 +63,7 @@ type Driver interface {
 	Unlock() error
 
 	// Run applies a migration to the database. migration is guaranteed to be not nil.
-	Run(migration io.Reader) error
+	Run(migration io.Reader, version int) error
 
 	// SetVersion saves version and dirty state.
 	// Migrate will call this function before and after each call to Run.

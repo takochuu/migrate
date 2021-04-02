@@ -736,21 +736,11 @@ func (m *Migrate) runMigrations(ret <-chan interface{}) error {
 		case *Migration:
 			migr := r
 
-			// set version with dirty state
-			if err := m.databaseDrv.SetVersion(migr.TargetVersion, true); err != nil {
-				return err
-			}
-
 			if migr.Body != nil {
 				m.logVerbosePrintf("Read and execute %v\n", migr.LogString())
-				if err := m.databaseDrv.Run(migr.BufferedBody); err != nil {
+				if err := m.databaseDrv.Run(migr.BufferedBody, migr.TargetVersion); err != nil {
 					return err
 				}
-			}
-
-			// set clean state
-			if err := m.databaseDrv.SetVersion(migr.TargetVersion, false); err != nil {
-				return err
 			}
 
 			endTime := time.Now()
